@@ -112,12 +112,12 @@ class makeheic:
         ff_pixfmt='yuv{S}p{D}'.format(S=self.sample,D=(str(self.bits) if self.bits>8 else '')) + ('le' if self.bits>8 else '')
         ff_pixfmt_a='gray{D}'.format(D=(str(self.bits) if self.bits>8 else '')) + ('le' if self.bits>8 else '')
         coffs = (-2 if self.subs_w and self.subs_h else 1)
-
-        self.ff_cmd_img=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}{SF},format={PF} -frames 1 -c:v libx265    -preset 6 -crf {Q} -x265-params    no-sao=1:selective-sao=0:ref=1:bframes=0:aq-mode=1:psy-rd=2:psy-rdoq=8:cbqpoffs={CO}:crqpoffs={CO}:range=full:colormatrix={MAT_L}:transfer=iec61966-2-1:no-info=1 "%temp%\make.heic.{PID}.hevc" -y'.format(INP=self.in_fp,PD=pad,SF=scale_filter,Q=self.crf,MAT_L=self.mat_l,PF=ff_pixfmt,CO=coffs,PID=self.pid)
+        # Actually color_primaries should be IEC 61966-2-1 (aka sRGB or sYCC), but ffmpeg and x265 do not accept this value. And at least for color_primaries, bt709 strictly equal to IEC 61966-2-1 ,so it is chosen.
+        self.ff_cmd_img=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}{SF},format={PF} -frames 1 -c:v libx265    -preset 6 -crf {Q} -x265-params    no-sao=1:selective-sao=0:ref=1:bframes=0:aq-mode=1:psy-rd=2:psy-rdoq=8:cbqpoffs={CO}:crqpoffs={CO}:range=full:colormatrix={MAT_L}:transfer=iec61966-2-1:colorprim=bt709:no-info=1 "%temp%\make.heic.{PID}.hevc" -y'.format(INP=self.in_fp,PD=pad,SF=scale_filter,Q=self.crf,MAT_L=self.mat_l,PF=ff_pixfmt,CO=coffs,PID=self.pid)
 
         self.m4b_cmd_img=r'cd /d %temp% && mp4box -add-image "make.heic.{PID}.hevc":primary:image-size={WxH}{ICC} -brand heic -new "{OUT}" && del "make.heic.{PID}.hevc"'.format(OUT=self.out_fp,ICC=icc_opt,PID=self.pid,WxH=str(self.probe_res_w)+'x'+str(self.probe_res_h))
 
-        self.ff_cmd_a=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}extractplanes=a,format={PF} -frames 1 -c:v libx265 -preset 6 -crf {Q} -x265-params no-sao=1:selective-sao=0:ref=1:bframes=0:aq-mode=1:psy-rd=2:psy-rdoq=8:cbqpoffs=1:crqpoffs=1:range=full:colormatrix={MAT_L}:transfer=iec61966-2-1:no-info=1 "%temp%\make.heic.alpha.{PID}.hevc" -y'.format(INP=self.in_fp,PD=pad,SF=':'.join(scale_filter.split(':')[:-1]),Q=self.crf,MAT_L=self.mat_l,PF=ff_pixfmt_a,PID=self.pid)
+        self.ff_cmd_a=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}extractplanes=a,format={PF} -frames 1 -c:v libx265 -preset 6 -crf {Q} -x265-params no-sao=1:selective-sao=0:ref=1:bframes=0:aq-mode=1:psy-rd=2:psy-rdoq=8:cbqpoffs=1:crqpoffs=1:range=full:colormatrix={MAT_L}:transfer=iec61966-2-1:colorprim=bt709:no-info=1 "%temp%\make.heic.alpha.{PID}.hevc" -y'.format(INP=self.in_fp,PD=pad,SF=':'.join(scale_filter.split(':')[:-1]),Q=self.crf,MAT_L=self.mat_l,PF=ff_pixfmt_a,PID=self.pid)
 
         self.m4b_cmd_a=r'cd /d %temp% && mp4box -add-image "make.heic.{PID}.hevc":primary:image-size={WxH}{ICC}  -add-image "make.heic.alpha.{PID}.hevc":ref=auxl,1:alpha:image-size={WxH} -brand heic -new "{OUT}" && del "make.heic.alpha.{PID}.hevc"'.format(OUT=self.out_fp,PID=self.pid,ICC=icc_opt,WxH=str(self.probe_res_w)+'x'+str(self.probe_res_h))
 
