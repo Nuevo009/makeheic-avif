@@ -114,11 +114,11 @@ class makeavif:
         ff_pixfmt_a='gray{D}'.format(D=(str(self.bits) if self.bits>8 else '')) + ('le' if self.bits>8 else '')
         coffs = (-2 if self.subs_w and self.subs_h else 1)
         # Actually the color_primaries should be IEC 61966-2-1 (aka sRGB or sYCC), but ffmpeg does not accept this value. And at least for color_primaries, bt709 strictly equal to IEC 61966-2-1 ,so it is chosen.
-        self.ff_cmd_img=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}{SF},format={PF} -qp {QP} -frames 1 -c:v librav1e -tile-columns 2 -tile-rows 2 -color_range pc -color_trc iec61966-2-1 -color_primaries bt709 -rav1e-params speed={S}:still_picture=true "%temp%\make.avif.{PID}.ivf" -y'.format(QP=self.q,S=self.speed,INP=self.in_fp,PD=pad,SF=scale_filter,MAT_L=self.mat_l,PF=ff_pixfmt,PID=self.pid)
+        self.ff_cmd_img=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}{SF},format={PF} -qp {QP} -frames 1 -c:v libsvtav1 -tile-columns 2 -tile-rows 2 -color_range pc -color_trc iec61966-2-1 -color_primaries bt709 -preset {S} "%temp%\make.avif.{PID}.ivf" -y'.format(QP=self.q,S=self.speed,INP=self.in_fp,PD=pad,SF=scale_filter,MAT_L=self.mat_l,PF=ff_pixfmt,PID=self.pid)
 
         self.m4b_cmd_img=r'cd /d %temp% && mp4box -add-image "make.avif.{PID}.ivf":primary:image-size={WxH}{ICC} -brand avif -new "{OUT}" && del "make.avif.{PID}.ivf"'.format(OUT=self.out_fp,ICC=icc_opt,PID=self.pid,WxH=str(self.probe_res_w)+'x'+str(self.probe_res_h))
 
-        self.ff_cmd_a=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}extractplanes=a,format={PF} -qp {QP} -frames 1 -c:v librav1e -tile-columns 2 -tile-rows 2 -color_range pc -color_trc iec61966-2-1 -color_primaries bt709 -rav1e-params speed={S}:still_picture=true "%temp%\make.avif.alpha.{PID}.ivf" -y'.format(QP=self.q,S=self.speed,INP=self.in_fp,PD=pad,SF=':'.join(scale_filter.split(':')[:-1]),MAT_L=self.mat_l,PF=ff_pixfmt_a,PID=self.pid)
+        self.ff_cmd_a=r'ffmpeg -hide_banner -r 1 -i "{INP}" -vf {PD}extractplanes=a,format={PF} -qp {QP} -frames 1 -c:v libsvtav1 -tile-columns 2 -tile-rows 2 -color_range pc -color_trc iec61966-2-1 -color_primaries bt709 -preset {S} "%temp%\make.avif.alpha.{PID}.ivf" -y'.format(QP=self.q,S=self.speed,INP=self.in_fp,PD=pad,SF=':'.join(scale_filter.split(':')[:-1]),MAT_L=self.mat_l,PF=ff_pixfmt_a,PID=self.pid)
 
         self.m4b_cmd_a=r'cd /d %temp% && mp4box -add-image "make.avif.{PID}.ivf":primary:image-size={WxH}{ICC}  -add-image "make.avif.alpha.{PID}.ivf":ref=auxl,1:alpha:image-size={WxH} -brand avif -new "{OUT}" && del "make.avif.alpha.{PID}.ivf"'.format(OUT=self.out_fp,PID=self.pid,ICC=icc_opt,WxH=str(self.probe_res_w)+'x'+str(self.probe_res_h))
 
