@@ -10,7 +10,7 @@ class args:
 
 
 class makeavif:
-    def __init__(self,in_fp,out_fp,q=80,speed=4,delsrc=False,sws=False,alpha=False,noalpha=False,noicc=False,mat=None,depth=10,sample='444',pid=choice(range(1000,10000))):
+    def __init__(self,in_fp,out_fp,q=50,speed=4,delsrc=False,sws=False,alpha=False,noalpha=False,noicc=False,mat=None,depth=10,sample='444',pid=choice(range(1000,10000))):
         self.in_fp = in_fp
         self.out_fp = out_fp
         self.q = q
@@ -146,7 +146,7 @@ class makeavif:
 if __name__ == '__main__':
     #Arguments, ordinary stuff I guess.
     parser = argparse.ArgumentParser(description='avif encode script using ffmpeg & mp4box.',formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-q',type=int,required=False,help='Quality(cqp),range(0-255), default 80.',default=80)
+    parser.add_argument('-q',type=int,required=False,help='Quality(cqp),range(0-63), default 50.',default=50)
     parser.add_argument('-speed',type=int,required=False,help='Speed level (0 is best quality, 10 is fastest) default 4',default=4)
     parser.add_argument('-o',type=str,required=False,help='Output(s), default input full name (ext. incl.) + ".avif".',nargs='*')
     parser.add_argument('-s',required=False,help='Silent mode, disables "enter to exit".',action='store_true')
