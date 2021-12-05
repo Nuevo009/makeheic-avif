@@ -10,7 +10,7 @@ class args:
 
 
 class makeavif:
-    def __init__(self,in_fp,out_fp,q=50,speed=4,delsrc=False,sws=False,alpha=False,noalpha=False,noicc=False,mat=None,depth=10,sample='444',pid=choice(range(1000,10000))):
+    def __init__(self,in_fp,out_fp,q=50,speed=4,delsrc=False,sws=False,alpha=False,noalpha=False,noicc=False,mat=None,depth=10,sample='420',pid=choice(range(1000,10000))):
         self.in_fp = in_fp
         self.out_fp = out_fp
         self.q = q
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     #New version of libheif seems to decode with matrixs accordingly, so I think it's better to use modern bt709 as default.
     parser.add_argument('--mat',type=str,required=False,help='Matrix used to convert RGB input file, should be either bt709 or bt601 currently. If a input file is in YUV, it\'s original matrix will be "preserved". ',default=None)
     parser.add_argument('--depth',type=int,required=False,help='Bitdepth for avif-yuv output, default 10.',default=10)
-    parser.add_argument('--sample',type=str,required=False,help='Chroma subsumpling for avif-yuv output, default "444"',default='444')
+    parser.add_argument('--sample',type=str,required=False,help='Chroma subsumpling for avif-yuv output, default "420". note: libsvtav1 in ffmpeg only supports 420 currently',default='420')
     parser.add_argument('INPUTFILE',type=str,help='Input file.',nargs='+')
     parser.parse_args(sys.argv[1:],args)
     pid = os.getpid()
